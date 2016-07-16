@@ -12,6 +12,7 @@ remote_db_name='foo'
 
 current_time="$(date +'%Y%m%d%H%M%S')"
 dump_file_name="$remote_db_name"_"$current_time".sql
+download_file_name="$dump_file_name".gz
 
 ssh_params=$ssh_user@$ssh_hostname
 scp_params="-P $ssh_port $ssh_params"
@@ -31,14 +32,14 @@ fi
 
 #via ssh dump sql file
 echo "===> Dumping..."
-ssh $ssh_params "MYSQL_PWD=$remote_db_user_pwd; mysqldump -u $remote_db_user_name -p\$MYSQL_PWD $remote_db_name > $dump_file_name"
+ssh $ssh_params "MYSQL_PWD=$remote_db_user_pwd; mysqldump -u $remote_db_user_name -p\$MYSQL_PWD $remote_db_name > $dump_file_name; gzip $dump_file_name"
 echo "===> Done."
 
 #get sql file from remote hosta
 echo "===> Downloading..."
-scp $scp_params:~/$dump_file_name .
+scp $scp_params:~/$download_file_name .
 echo "===> Done."
 
 echo "===> Deleting..."
-ssh $ssh_params "rm -f $dump_file_name"
+ssh $ssh_params "rm -f $download_file_name"
 echo "===> Done."
